@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import sun.security.util.Password;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpSession;
@@ -31,7 +32,9 @@ public class CalendarSpringController {
     @PostConstruct
     public void init() throws InvalidKeySpecException, NoSuchAlgorithmException {
         if (users.count() == 0) {
-            User user = new User("admin", PasswordHash.createHash("admin"));
+            User user = new User();
+            user.username = ("admin");
+            user.password = PasswordHash.createHash("1234");
             users.save(user);
         }
 
@@ -67,7 +70,7 @@ public class CalendarSpringController {
             user.password = PasswordHash.createHash(password);
             users.save(user);
         }
-        else if (PasswordHash.validatePassword(password, user.password)) {
+        else if (!PasswordHash.validatePassword(password, user.password)) {
             throw new Exception("Wrong password.");
         }
 
@@ -76,9 +79,9 @@ public class CalendarSpringController {
         return "redirect:/";
     }
 
-    @RequestMapping("/addevent")
+    @RequestMapping("/add-event")
     public String addEvent(HttpSession session, String description, String date) throws Exception {
-        String username = (String) session.getAttribute("user");
+        String username = (String) session.getAttribute("username");
         if (username == null) {
             throw new Exception("Not logged in.");
         }
@@ -86,6 +89,7 @@ public class CalendarSpringController {
         Event e = new Event();
         e.date = LocalDateTime.parse(date);
         e.user = users.findOneByUsername(username);
+        e.description = description;
         events.save(e);
 
         return "redirect:/";

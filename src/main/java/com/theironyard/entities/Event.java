@@ -1,5 +1,7 @@
 package com.theironyard.entities;
 
+import org.hibernate.annotations.Columns;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
